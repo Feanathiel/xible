@@ -1,70 +1,31 @@
 {
-  "name": "xible",
-  "version": "0.8.0",
-  "description": "xible",
+  "name": "fexible",
+  "version": "0.0.1",
+  "description": "fexible",
   "license": "MIT",
-  "homepage": "https://xible.io",
+  "homepage": "",
   "author": {
-    "name": "Stefan de Jong"
+    "name": ""
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/spectrumbroad/xible"
-  },
-  "bugs": {
-    "url": "https://github.com/spectrumbroad/xible/issues",
-    "email": "bugs@xible.io"
-  },
-  "keywords": [
-    "xible",
-    "visual",
-    "flow",
-    "workflow",
-    "connector",
-    "string",
-    "wire",
-    "programming",
-    "automation",
-    "automate",
-    "flexible",
-    "node",
-    "nodejs",
-    "javascript"
-  ],
   "scripts": {
-    "start": "node cli.js server start",
-    "debug": "export DEBUG=\"xible*\" && ./node_modules/.bin/nodemon ./bin/xible.js server start",
-    "inspect": "export DEBUG=\"xible*\" && ./node_modules/.bin/nodemon --inspect=0.0.0.0:9229 ./bin/xible.js server start",
-    "inspect-brk": "export DEBUG=\"xible*\" && ./node_modules/.bin/nodemon --inspect-brk=0.0.0.0:9229 ./bin/xible.js server start",
-    "prepublishOnly": "npm shrinkwrap --only=prod"
+    "server": "node index.js",
+    "build": "gulp browserify"
   },
-  "bin": {
-    "xible": "./bin/xible.js",
-    "xiblepm": "./bin/xiblepm.js"
-  },
-  "main": "index.js",
   "engines": {
     "node": ">=7.6.0"
   },
   "dependencies": {
-    "xible-wrapper": "*",
-    "xible-registry-wrapper": "*",
-    "nopt": "*",
-    "ws": "*",
-    "debug": "*",
-    "express": "*",
-    "body-parser": "*",
-    "spdy": "*",
-    "sanitize-filename": "*",
-    "fs-extra": "*",
-    "strip-ansi": "*"
+    "express": "*"
   },
   "devDependencies": {
+    "browserify": "^14.4.0",
     "eslint": "^4.3.0",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-react": "^7.1.0",
-    "nodemon": "*"
+    "gulp": "^3.9.1",
+    "oohttp": "^0.2.0",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
