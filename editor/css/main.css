@@ -38,7 +38,7 @@ section {
 	font-size: 0.7em;
 }
 
-main {
+.xibleView {
 	box-sizing: border-box;
 	height: 100%;
 	flex: 1 1 auto;
@@ -46,12 +46,12 @@ main {
 	color: #ddd;
 }
 
-main a {
+.xibleView a {
 	color: #eee;
 	text-decoration: underline;
 }
 
-main a:hover {
+.xibleView a:hover {
 	color: #fff;
 	text-decoration: underline;
 }

@@ -1,4 +1,4 @@
-#sub {
+.toolbar {
 	font-family: arial;
 	box-shadow: inset 6px 0 6px -6px rgba(0, 0, 0, 1);
 	width: 240px;
@@ -11,7 +11,7 @@
 	flex-shrink: 0;
 }
 
-#sub section {
+.toolbar section {
 	position: relative;
 	margin: 0;
 	padding: 22px 0;
@@ -21,24 +21,24 @@
 	font-size: 0.6em;
 }
 
-#sub p {
+.toolbar p {
 	margin: 12px 5px;
 	font-size: 0.6em;
 }
 
-#sub p:first-of-type {
+.toolbar p:first-of-type {
 	margin-bottom: 0;
 }
 
-#sub section:first-of-type {
+.toolbar section:first-of-type {
 	padding-top: 12px;
 }
 
-#sub section:last-child {
+.toolbar section:last-child {
 	border-bottom: none;
 }
 
-#sub section>h1 {
+.toolbar section>h1 {
 	box-sizing: border-box;
 	padding: 8px 10px;
 	color: #ddd;
@@ -46,20 +46,20 @@
 	margin: 0;
 }
 
-#sub section>ul {
+.toolbar section>ul {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-#sub section>ul>li {
+.toolbar section>ul>li {
 	margin: 0;
 	padding: 2px 6px;
 	font-weight: bold;
 	color: #aaa;
 }
 
-#sub section>ul>li>a {
+.toolbar section>ul>li>a {
 	padding: 4px;
 	display: block;
 	color: inherit;
@@ -70,22 +70,22 @@
 	box-sizing: border-box;
 }
 
-#sub section>ul>li>a:active, #sub section>ul>li>a.view {
+.toolbar section>ul>li>a:active, .toolbar section>ul>li>a.view {
 	background-color: #272727;
 	color: #ddd;
 }
 
-#sub section>ul>li>a:hover {
+.toolbar section>ul>li>a:hover {
 	background-color: #333;
 	text-decoration: underline;
 	color: #ddd;
 }
 
-#sub header {
+.toolbar header {
 	margin: 0;
 }
 
-#sub section.buttons {
+.toolbar section.buttons {
 	display: flex;
 	flex-wrap: wrap;
 }
@@ -126,7 +126,7 @@
 }
 
 @media (max-height: 820px) and (min-height: 1px) {
-	#sub section {
+	.toolbar section {
 		padding: 10px 0;
 	}
 
@@ -137,7 +137,7 @@
 }
 
 @media (max-width: 1023px) and (min-width: 1px) {
-	#sub {
+	.toolbar {
 		width: 180px;
 	}
 }

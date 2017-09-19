@@ -1,4 +1,4 @@
-#flowEditorHolder {
+.flowEditorHolder {
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 auto;
@@ -6,7 +6,7 @@
 	position: relative;
 }
 
-#flowEditorHolder .zoomButtons {
+.flowEditorHolder .zoomButtons {
 	position: absolute;
 	right: 10px;
 	bottom: 10px;
@@ -23,11 +23,11 @@
 	transition: opacity ease .2s;
 }
 
-#flowEditorHolder .zoomButtons:hover {
+.flowEditorHolder .zoomButtons:hover {
 	opacity: 0.9;
 }
 
-#flowEditorHolder .zoomButtons button {
+.flowEditorHolder .zoomButtons button {
 	-webkit-appearance: none;
 	appearance: none;
 	margin: 0;
@@ -46,71 +46,22 @@
 	border-radius: 0;
 }
 
-#flowEditorHolder .zoomButtons button:first-child {
+.flowEditorHolder .zoomButtons button:first-child {
 	border-radius: 6px 0 0 6px;
 }
 
-#flowEditorHolder .zoomButtons button:last-child {
+.flowEditorHolder .zoomButtons button:last-child {
 	border-right: none;
 	border-radius: 0 6px 6px 0;
 }
 
-#flowEditorHolder .zoomButtons button:hover {
+.flowEditorHolder .zoomButtons button:hover {
 	background-color: #282828;
 }
 
-#flowEditorHolder .zoomButtons button:active,
-#flowEditorHolder .zoomButtons button:focus {
+.flowEditorHolder .zoomButtons button:active,
+.flowEditorHolder .zoomButtons button:focus {
 	outline: 0;
-}
-
-.stats div {
-	position: relative;
-	height: 100px;
-}
-
-.stats canvas {
-	display: block;
-	width: 100%;
-	height: 50%;
-}
-
-.stats label {
-	display: block;
-	float: left;
-	position: relative;
-	font-size: 0.8em;
-	margin: 4px 4px 0;
-}
-
-.stats label::before {
-	margin: 3px 4px 4px;
-	display: block;
-	float: left;
-	content: "";
-	width: 7px;
-	height: 7px;
-	border-radius: 50%;
-}
-
-#heapUsed::before {
-	background-color: rgb(230, 74, 107);
-}
-
-#heapTotal::before {
-	background-color: rgb(29, 137, 210);
-}
-
-#rss::before {
-	background-color: rgb(230, 181, 61);
-}
-
-#cpu::before {
-	background-color: rgb(50, 167, 167);
-}
-
-#delay::before {
-	background-color: purple;
 }
 
 .editor.buttons button::before {
@@ -120,48 +71,18 @@
 	margin-bottom: 6px;
 }
 
-#xibleFlowDeployButton {
-	flex: 0 1 100%;
-}
-
-#xibleFlowStartButton {
-	clear: left;
-}
-
-#xibleFlowDeployButton::before {
-	content: "\f063";
-}
-
-#xibleFlowStartButton::before {
-	content: "\f04b";
-}
-
-#xibleFlowStopButton::before {
-	content: "\f04d";
-}
-
-#xibleFlowSaveButton::before {
+.saveButton::before {
 	content: "\f019";
 }
 
-#xibleFlowDeleteButton::before {
+.deleteButton::before {
 	content: "\f014";
 }
 
 @media (max-height: 820px) and (min-height: 1px) {
-	.stats div {
-		height: 80px;
-	}
-
 	.editor.buttons button::before {
 		display: inline;
 		margin: 0 6px 0 0;
-	}
-}
-
-@media (max-height: 680px) and (min-height: 1px) {
-	.stats div {
-		height: 60px;
 	}
 }
 
