@@ -60,8 +60,6 @@ class XibleEditor extends EventEmitter {
     this.loadedFlow = null;
 
     this.enableNodeSelector();
-    this.enableZoom();
-    this.enablePan();
     this.enableHook();
     this.enableSelection();
   }

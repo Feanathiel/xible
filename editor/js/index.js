@@ -26,6 +26,7 @@ const editorView = (element, options) => {
 
   const toolbar = EL.querySelector('.toolbar');
   const flowButtons = EL.querySelector('.flowList');
+  const zoomButtons = EL.querySelector('.zoomButtons');
 
   if(!options.modules.toolbar){
     toolbar.classList.add("hidden");
@@ -36,6 +37,13 @@ const editorView = (element, options) => {
   }
 
   const xibleEditor = new Xible.XibleEditor(Xible.xibleWrapper);
+  
+  if(options.modules.navigation) {
+    xibleEditor.enableZoom();
+    xibleEditor.enablePan();
+  } else {
+    zoomButtons.classList.add('hidden');
+  }
  
   // hook buttons
 
