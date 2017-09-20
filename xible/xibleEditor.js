@@ -1169,8 +1169,9 @@ class XibleEditor extends EventEmitter {
         });
 
         event.preventDefault();
+        event.stopPropagation();
       }
-    });
+    }, true);
 
 
     // unhook eventhandler created on mousedown
