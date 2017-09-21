@@ -7,22 +7,8 @@ const XibleEditorNodeSelector = require('./XibleEditorNodeSelector.js');
 const XibleEditorNode = require('./XibleEditorNode.js');
 
 class XibleEditor extends EventEmitter {
-  constructor(xibleWrapper) {
+  constructor() {
     super();
-
-    this.xibleWrapper = xibleWrapper;
-
-    // remove all editor statuses when connection closes
-    xibleWrapper.on('close', () => {
-      if (!this.loadedFlow) {
-        return;
-      }
-      this.loadedFlow.removeAllStatuses();
-    });
-
-    xibleWrapper.on('message', (message) => {
-      this.messageHandler(message);
-    });
 
     // stage element
     this.element = document.createElement('div');
@@ -204,93 +190,6 @@ class XibleEditor extends EventEmitter {
       }
 
       return this.flows;
-  }
-
-  /**
-  * Handles a message from xibleWrapper
-  * @param {Object} json The message Object
-  */
-  messageHandler(json) {
-    // get the node for this message
-    let node;
-    if (json.nodeId && this.loadedFlow) {
-      node = this.loadedFlow.getNodeById(json.nodeId);
-      if (!node) {
-        return;
-      }
-    }
-
-    if (json.flowId && !this.flows[json.flowId]) {
-      return;
-    }
-    switch (json.method) {
-      case 'xible.removeAllStatuses':
-
-        this.loadedFlow.removeAllStatuses();
-        break;
-
-      case 'xible.node.addStatus':
-        if (node) {
-          node.addStatus(json.status);
-        }
-
-        break;
-
-      case 'xible.node.updateStatusById':
-        if (node) {
-          node.updateStatusById(json.status._id, json.status);
-        }
-
-        break;
-
-      case 'xible.node.addProgressBar':
-        if (node) {
-          node.addProgressBar(json.status);
-        }
-
-        break;
-
-      case 'xible.node.updateProgressBarById':
-        if (node) {
-          node.updateProgressBarById(json.status._id, json.status);
-        }
-
-        break;
-
-      case 'xible.node.removeStatusById':
-        if (node) {
-          node.removeStatusById(json.status._id, json.status.timeout);
-        }
-
-        break;
-
-      case 'xible.node.removeAllStatuses':
-        if (node) {
-          node.removeAllStatuses();
-        }
-
-        break;
-
-      case 'xible.node.setTracker':
-        if (node) {
-          node.setTracker(json.status);
-        }
-
-        break;
-
-      case 'xible.flow.usage':
-        this.emit('flow.usage', json.flows);
-
-        // emit for every flow
-        for (let i = 0; i < json.flows.length; i += 1) {
-          const flow = this.flows[json.flows[i]._id];
-          if (flow) {
-            flow.emit('usage', json.flows[i]);
-          }
-        }
-
-        break;
-    }
   }
 
   /**
@@ -1203,6 +1102,124 @@ class XibleEditor extends EventEmitter {
       // ensure we deselect the dummyXibleNode
       this.deselect();
     });
+  }
+
+  center() {
+    if (!this.loadedFlow || !this.loadedFlow.nodes.length) {
+      return;
+    }
+
+    // get the min/max coordinates from the nodes
+    let minLeft;
+    let minTop;
+    let maxLeft;
+    let maxTop;
+    for (let i = 0; i < this.loadedFlow.nodes.length; i += 1) {
+      const node = this.loadedFlow.nodes[i];
+      const nodeOffsetWidth = node.element.offsetWidth;
+      const nodeOffsetHeight = node.element.offsetHeight;
+
+      if (!minLeft || node.left < minLeft) {
+        minLeft = node.left;
+      }
+      if (!maxLeft || node.left + nodeOffsetWidth > maxLeft) {
+        maxLeft = node.left + nodeOffsetWidth;
+      }
+      if (!minTop || node.top < minTop) {
+        minTop = node.top;
+      }
+      if (!maxTop || node.top + nodeOffsetHeight > maxTop) {
+        maxTop = node.top + nodeOffsetHeight;
+      }
+    }
+
+    // get editor size
+    const xibleEditorBounding = this.element.getBoundingClientRect();
+    const xibleEditorWidth = xibleEditorBounding.width;
+    const xibleEditorHeight = xibleEditorBounding.height;
+
+    // add some padding to the found node coordinates;
+    const PADDING = 40;
+    minLeft -= PADDING;
+    maxLeft += PADDING;
+    minTop -= PADDING;
+    maxTop += PADDING;
+
+    // center x
+    this.left = (this.zoom * -minLeft) + (xibleEditorWidth / 2) - (this.zoom * ((maxLeft - minLeft) / 2));
+    
+    // center y
+    this.top = (this.zoom * -minTop) + (xibleEditorHeight / 2) - (this.zoom * ((maxTop - minTop) / 2));
+
+    // apply the transormation
+    this.transform();
+  }
+
+  zoomFit() {
+    if (!this.loadedFlow || !this.loadedFlow.nodes.length) {
+      return;
+    }
+
+    // get the min/max coordinates from the nodes
+    let minLeft;
+    let minTop;
+    let maxLeft;
+    let maxTop;
+    for (let i = 0; i < this.loadedFlow.nodes.length; i += 1) {
+      const node = this.loadedFlow.nodes[i];
+      const nodeOffsetWidth = node.element.offsetWidth;
+      const nodeOffsetHeight = node.element.offsetHeight;
+
+      if (!minLeft || node.left < minLeft) {
+        minLeft = node.left;
+      }
+      if (!maxLeft || node.left + nodeOffsetWidth > maxLeft) {
+        maxLeft = node.left + nodeOffsetWidth;
+      }
+      if (!minTop || node.top < minTop) {
+        minTop = node.top;
+      }
+      if (!maxTop || node.top + nodeOffsetHeight > maxTop) {
+        maxTop = node.top + nodeOffsetHeight;
+      }
+    }
+
+    // get editor size
+    const xibleEditorBounding = this.element.getBoundingClientRect();
+    const xibleEditorWidth = xibleEditorBounding.width;
+    const xibleEditorHeight = xibleEditorBounding.height;
+
+    // add some padding to the found node coordinates;
+    const PADDING = 40;
+    minLeft -= PADDING;
+    maxLeft += PADDING;
+    minTop -= PADDING;
+    maxTop += PADDING;
+
+    // calculate the zoom factor and zoom to the lowest factor
+    const widthZoomFactor = xibleEditorWidth / (maxLeft - minLeft);
+    const heightZoomFactor = xibleEditorHeight / (maxTop - minTop);
+    this.zoom = Math.min(widthZoomFactor, heightZoomFactor);
+
+    // set left and top properties for the editor
+    if (widthZoomFactor < heightZoomFactor) {
+      // set x
+      this.left = this.zoom * -minLeft;
+
+      // center y
+      this.top = (this.zoom * -minTop) + (xibleEditorHeight / 2) -
+        (this.zoom * ((maxTop - minTop) / 2));
+    } else {
+      // center x
+      this.left = (this.zoom * -minLeft) + (xibleEditorWidth / 2) -
+        (this.zoom * ((maxLeft - minLeft) / 2));
+
+      // set y
+      this.top = xibleEditor.zoom * -minTop;
+    }
+
+    // apply the transormation
+    this.transform();
   }
 
   static get inputElementNameList() {

@@ -1,8 +1,13 @@
 'use strict';
 
-module.exports = (XIBLE) => {
-  const EventEmitter = require('events').EventEmitter;
+const EventEmitter = require('events').EventEmitter;
+const NodeInput = require('./Io').Input;
+const NodeOutput = require('./Io').Output;
 
+const http = require('./http');
+const Utils = require('./utils');
+
+// This shouldn't be here
   const NODES = [];
 
   class Node extends EventEmitter {
@@ -13,7 +18,7 @@ module.exports = (XIBLE) => {
       this.removeAllListeners();
 
       if (!this._id) {
-        this._id = XIBLE.generateObjectId();
+        this._id = Utils.generateObjectId();
       }
 
       // copy data
@@ -37,7 +42,7 @@ module.exports = (XIBLE) => {
       this.inputs = {};
       if (inputs) {
         for (const name in inputs) {
-          this.addInput(new XIBLE.NodeInput(name, inputs[name]));
+          this.addInput(new NodeInput(name, inputs[name]));
         }
       }
     }
@@ -46,7 +51,7 @@ module.exports = (XIBLE) => {
       this.outputs = {};
       if (outputs) {
         for (const name in outputs) {
-          this.addOutput(new XIBLE.NodeOutput(name, outputs[name]));
+          this.addOutput(new NodeOutput(name, outputs[name]));
         }
       }
     }
@@ -94,7 +99,7 @@ module.exports = (XIBLE) => {
     }
 
     getEditorContent() {
-      const req = XIBLE.http.request('GET', `/nodes/${encodeURIComponent(this.name)}/editor/index.htm`);
+      const req = http.request('GET', `/nodes/${encodeURIComponent(this.name)}/editor/index.htm`);
       return req.toString();
     }
 
@@ -123,7 +128,7 @@ module.exports = (XIBLE) => {
       child.node = this;
 
       if (!child._id) {
-        child._id = XIBLE.generateObjectId();
+        child._id = Utils.generateObjectId();
       }
 
       child.node = this;
@@ -207,5 +212,5 @@ module.exports = (XIBLE) => {
     }
   }
 
-  return Node;
-};
+module.exports = Node;
+

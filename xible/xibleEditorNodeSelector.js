@@ -1,5 +1,6 @@
 'use strict';
 
+const Node = require('./Node');
 const XibleEditorNode = require('./XibleEditorNode.js');
 
 class XibleEditorNodeSelector {
@@ -122,7 +123,7 @@ class XibleEditorNodeSelector {
   /**
   * Builds a node for the nodeSelector.
   * @param {String} nodeName
-  * @param {xibleWrapper.Node} node
+  * @param {Node} node
   * @returns {HTMLLIElement} The created HTML element, an LI.
   */
   buildNode(nodeName, node) {
@@ -189,7 +190,7 @@ class XibleEditorNodeSelector {
     this.nodesUl.innerHTML = '';
 
     // get the installed nodes
-    return this.xibleEditor.xibleWrapper.Node.getAll().then((nodes) => {
+    return Node.getAll().then((nodes) => {
       Object.keys(nodes).forEach((nodeName) => {
         const li = this.buildNode(nodeName, nodes[nodeName]);
         this.hookNode(li, nodes[nodeName]);

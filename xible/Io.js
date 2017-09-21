@@ -1,7 +1,10 @@
 'use strict';
 
-module.exports = (XIBLE) => {
-  const EventEmitter = require('events').EventEmitter;
+const EventEmitter = require('events').EventEmitter;
+
+const TypeDef = require('./TypeDef');
+const Utils = require('./utils');
+
 
   class Io extends EventEmitter {
     constructor(name, obj) {
@@ -16,7 +19,7 @@ module.exports = (XIBLE) => {
       this.connectors = [];
 
       if (!this._id) {
-        this._id = XIBLE.generateObjectId();
+        this._id = Utils.generateObjectId();
       }
 
       this.setName(name);
@@ -72,7 +75,7 @@ module.exports = (XIBLE) => {
 
       if (this.singleType) {
         this.on('attach', (conn) => {
-          const connLoc = conn[this instanceof XIBLE.NodeInput ? 'origin' : 'destination'];
+          const connLoc = conn[this instanceof Input ? 'origin' : 'destination'];
           if (connLoc && connLoc.type) {
             this.setType(connLoc.type);
           }
@@ -128,9 +131,9 @@ module.exports = (XIBLE) => {
     * @returns {Promise.<Boolean>}
     */
     matchesTypeDef(connector) {
-      return XIBLE.TypeDef.getAll()
+      return TypeDef.getAll()
       .then((typeDefs) => {
-        const outGoing = this instanceof XIBLE.NodeOutput;
+        const outGoing = this instanceof Output;
         const originTypeDef = typeDefs[(outGoing ? this.type : connector.origin.type)];
         const destinationTypeDef = typeDefs[(outGoing ? connector.destination.type : this.type)];
 
@@ -151,7 +154,7 @@ module.exports = (XIBLE) => {
       }
 
       // verify type
-      const end = this instanceof XIBLE.NodeInput ? 'origin' : 'destination';
+      const end = this instanceof Input ? 'origin' : 'destination';
       if (this.type) {
         this.connectors
         .filter(conn => conn[end].type && conn[end].type !== this.type)
@@ -174,15 +177,72 @@ module.exports = (XIBLE) => {
         this.connectors[0].delete();
       }
 
-      if (this.node && this instanceof XIBLE.NodeInput) {
+      if (this.node && this instanceof Input) {
         delete this.node.inputs[this.name];
       }
 
-      if (this.node && this instanceof XIBLE.NodeOutput) {
+      if (this.node && this instanceof Output) {
         delete this.node.outputs[this.name];
       }
     }
   }
 
-  return Io;
+  class Input extends Io {
+    delete() {
+      super.delete();
+
+      if (this.node) {
+        this.node.deleteInput(this);
+      }
+    }
+
+    matchesConnectors(connectors) {
+      if (!connectors) {
+        return false;
+      }
+
+      const connector = connectors[0];
+      return this.matchesTypeDef(connector)
+      .then(matchesTypeDef =>
+        this.node !== connector.origin.node &&
+        (
+          (!this.type && connector.origin.type !== 'trigger') ||
+          (!connector.origin.type && this.type !== 'trigger') ||
+          connector.origin.type === this.type || matchesTypeDef
+        )
+      );
+    }
+  }
+
+  class Output extends Io {
+    delete() {
+      super.delete();
+  
+      if (this.node) {
+        this.node.deleteOutput(this);
+      }
+    }
+  
+    matchesConnectors(connectors) {
+      if (!connectors) {
+        return false;
+      }
+  
+      const connector = connectors[0];
+      return this.matchesTypeDef(connector)
+      .then(matchesTypeDef =>
+        this.node !== connector.destination.node &&
+        (
+          (!this.type && connector.destination.type !== 'trigger') ||
+          (!connector.destination.type && this.type !== 'trigger') ||
+          connector.destination.type === this.type || matchesTypeDef
+        )
+      );
+    }
+  }
+
+module.exports = {
+  Io,
+  Input,
+  Output
 };

@@ -1,7 +1,10 @@
 'use strict';
 
-module.exports = (XIBLE) => {
-  const EventEmitter = require('events').EventEmitter;
+const Node = require('./Node');
+const Connector = require('./Connector');
+const http = require('./http');
+
+const EventEmitter = require('events').EventEmitter;
 
   var FLOWS = [];
 
@@ -46,7 +49,7 @@ module.exports = (XIBLE) => {
 
     initNodes(nodes) {
       this.nodes = [];
-      nodes.forEach(node => this.addNode(new XIBLE.Node(node)));
+      nodes.forEach(node => this.addNode(new Node(node)));
     }
 
     initConnectors(connectors) {
@@ -55,7 +58,7 @@ module.exports = (XIBLE) => {
         conn.origin = this.getOutputById(conn.origin);
         conn.destination = this.getInputById(conn.destination);
 
-        this.addConnector(new XIBLE.Connector(conn));
+        this.addConnector(new Connector(conn));
       });
     }
 
@@ -132,7 +135,7 @@ module.exports = (XIBLE) => {
           data: node.data
         }));
 
-        const req = XIBLE.http.request('PATCH', `/api/flows/${encodeURIComponent(this._id)}/direct`);
+        const req = http.request('PATCH', `/api/flows/${encodeURIComponent(this._id)}/direct`);
         req.toString(nodes)
         .then(() => {
           resolve(this);
@@ -301,5 +304,4 @@ module.exports = (XIBLE) => {
     }
   }
 
-  return Flow;
-};
+  module.exports = Flow;

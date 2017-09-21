@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = () => {
+
   class Connector {
     constructor(obj) {
       if (obj) {
@@ -79,5 +79,5 @@ module.exports = () => {
     }
   }
 
-  return Connector;
-};
+module.exports = Connector;
+

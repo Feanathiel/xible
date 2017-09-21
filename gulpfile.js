@@ -5,7 +5,7 @@ const browserify = require('browserify');
 const transform = require('vinyl-source-stream');
 
 gulp.task('browserify', () => 
-  browserify('xible/index.js', {
+  browserify('xible/Xible.js', {
     standalone: 'Xible'
   })
   .bundle()

@@ -1,11 +1,11 @@
 'use strict';
 
-const xibleWrapper = require('./wrapperinstance.js');
+const Flow = require('./Flow');
 
 const XibleEditorNode = require('./XibleEditorNode.js');
 const XibleEditorConnector = require('./XibleEditorConnector.js');
 
-class XibleEditorFlow extends xibleWrapper.Flow {
+class XibleEditorFlow extends Flow {
   constructor(obj) {
     super(obj);
 

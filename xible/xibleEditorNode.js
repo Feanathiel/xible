@@ -1,9 +1,12 @@
 'use strict';
 
-const xibleWrapper = require('./wrapperinstance.js');
+const Node = require('./Node');
 const XibleEditorConnector = require('./XibleEditorConnector.js');
+const Utils = require('./utils');
+const NodeInput = require('./Io').Input;
+const NodeOutput = require('./Io').Output;
 
-class XibleEditorNode extends xibleWrapper.Node {
+class XibleEditorNode extends Node {
   constructor(obj, ignoreData) {
     const el = document.createElement('div');
     el.classList.add('node');
@@ -169,16 +172,16 @@ class XibleEditorNode extends xibleWrapper.Node {
     duplicateXibleNode.editor = null;
 
     // create a unique id for the node
-    duplicateXibleNode._id = xibleWrapper.generateObjectId();
+    duplicateXibleNode._id = Utils.generateObjectId();
 
     // create a unique id for the inputs
     for (const name in duplicateXibleNode.inputs) {
-      duplicateXibleNode.inputs[name]._id = xibleWrapper.generateObjectId();
+      duplicateXibleNode.inputs[name]._id = Utils.generateObjectId();
     }
 
     // create a unique id for the outputs
     for (const name in duplicateXibleNode.outputs) {
-      duplicateXibleNode.outputs[name]._id = xibleWrapper.generateObjectId();
+      duplicateXibleNode.outputs[name]._id = Utils.generateObjectId();
     }
 
     return duplicateXibleNode;
@@ -917,10 +920,10 @@ const XibleEditorNodeIo = toExtend => class extends toExtend {
   }
 };
 
-class XibleEditorNodeInput extends XibleEditorNodeIo(xibleWrapper.NodeInput) {
+class XibleEditorNodeInput extends XibleEditorNodeIo(NodeInput) {
 }
 
-class XibleEditorNodeOutput extends XibleEditorNodeIo(xibleWrapper.NodeOutput) {
+class XibleEditorNodeOutput extends XibleEditorNodeIo(NodeOutput) {
   setGlobal(global) {
     super.setGlobal(global);
 

@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = (XIBLE) => {
+// This shouldn't be here
   let TYPE_DEFS = [];
 
   class TypeDef {
@@ -60,5 +60,5 @@ module.exports = (XIBLE) => {
     }
   }
 
-  return TypeDef;
-};
+module.exports = TypeDef;
+

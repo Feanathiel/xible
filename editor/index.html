@@ -31,7 +31,6 @@
 	<div id="viewer" style="width: 900px; height: 600px;"></div>
 	
 	<script src="js/xible.js"></script>
-	<script src="js/index.js"></script>
 
 	<script type="text/javascript">
 		var options = {};
@@ -1569,9 +1568,9 @@
 				navigation: true
 			};
 		
-		const fullEditor = editorView("#fullEditor", options);
+		const fullEditor = Xible("#fullEditor", options);
 
-		const viewer = editorView("#viewer", {
+		const viewer = Xible("#viewer", {
 			typeDefs: {},
 			nodes: {},
 			modules: {
