@@ -1,4 +1,5 @@
-module.exports = (xibleEditor) => {
+
+function apiFactory(xibleEditor) {
     class XibleApi {
         fit() {
             xibleEditor.zoomFit();
@@ -6,6 +7,14 @@ module.exports = (xibleEditor) => {
 
         center() {
             xibleEditor.center();
+        }
+
+        selectAll() {
+            xibleEditor.selectAll();
+        }
+
+        deselectAll() {
+            xibleEditor.deselect();
         }
 
         flowsJson() {
@@ -28,4 +37,6 @@ module.exports = (xibleEditor) => {
     }
 
     return XibleApi;
-};
+}
+
+module.exports = apiFactory;

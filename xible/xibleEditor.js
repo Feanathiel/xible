@@ -781,9 +781,7 @@ class XibleEditor extends EventEmitter {
           // select all
         case 'a':
           if (event.ctrlKey) {
-            this.loadedFlow.nodes.forEach(node => this.select(node));
-            this.loadedFlow.connectors.forEach(connector => this.select(connector));
-
+            this.selectAll();
             event.preventDefault();
           }
 
@@ -868,6 +866,11 @@ class XibleEditor extends EventEmitter {
           break;
       }
     });
+  }
+
+  selectAll() {
+    this.loadedFlow.nodes.forEach(node => this.select(node));
+    this.loadedFlow.connectors.forEach(connector => this.select(connector));
   }
 
   /**
