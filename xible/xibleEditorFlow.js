@@ -1,7 +1,6 @@
 'use strict';
 
 const Flow = require('./Flow');
-
 const XibleEditorNode = require('./XibleEditorNode.js');
 const XibleEditorConnector = require('./XibleEditorConnector.js');
 

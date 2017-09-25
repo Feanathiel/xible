@@ -1,6 +1,0 @@
-{
-  "boolean": {
-    "color": "purple",
-    "extends": "object"
-  }
-}

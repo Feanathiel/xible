@@ -34,9 +34,7 @@ class XibleEditorNode extends Node {
     headerEl.appendChild(document.createTextNode(this.name));
 
     // add additional content
-    if (this.hostsEditorContent) { // load editor static hosted content for this node
-      this.getAndProcessEditorContent();
-    } else if (!this.nodeExists && obj.editorContent) {
+    if(obj.editorContent) {
       this.processEditorContent(obj.editorContent);
     }
 
@@ -54,15 +52,6 @@ class XibleEditorNode extends Node {
         this.editor.toggleSelectionOnMouseEvent(event, this);
       }
     });
-
-    if (!obj.nodeExists) {
-      this.element.classList.add('fail');
-      this.addStatus({
-        _id: 1,
-        color: 'red',
-        message: 'This node does not exist in this configuration'
-      });
-    }
   }
 
   initInputs(inputs) {
@@ -80,20 +69,6 @@ class XibleEditorNode extends Node {
       for (const name in outputs) {
         this.addOutput(new XibleEditorNodeOutput(name, outputs[name]));
       }
-    }
-  }
-
-  getAndProcessEditorContent() {
-    const proc = () => {
-      this.getEditorContent().then((data) => {
-        this.processEditorContent(data);
-      });
-    };
-
-    if (this.editor) {
-      proc();
-    } else {
-      this.once('beforeAppend', proc);
     }
   }
 

@@ -1,12 +1,12 @@
 'use strict';
 
-const Node = require('./Node');
-const Connector = require('./Connector');
-const http = require('./http');
-
 const EventEmitter = require('events').EventEmitter;
 
+const Node = require('./Node');
+const Connector = require('./Connector');
+
   var FLOWS = [];
+  const http = {};
 
   class Flow extends EventEmitter {
     constructor(obj) {

@@ -3,8 +3,6 @@
 const EventEmitter = require('events').EventEmitter;
 const NodeInput = require('./Io').Input;
 const NodeOutput = require('./Io').Output;
-
-const http = require('./http');
 const Utils = require('./utils');
 
 // This shouldn't be here
@@ -96,11 +94,6 @@ const Utils = require('./utils');
 
     getData(attr) {
       return this.data[attr];
-    }
-
-    getEditorContent() {
-      const req = http.request('GET', `/nodes/${encodeURIComponent(this.name)}/editor/index.htm`);
-      return req.toString();
     }
 
     setPosition(left = 0, top = 0) {
