@@ -162,7 +162,9 @@ class XibleEditorNodeSelector {
     // onmousedown so the user can drag the newly inserted node immediately
     li.addEventListener('mousedown', (event) => {
       const actionsOffset = this.xibleEditor.getOffsetPosition();
-      const editorNode = this.xibleEditor.addNode(new XibleEditorNode(node));
+      const nodeUi = new XibleEditorNode(node);
+      nodeUi.init();
+      const editorNode = this.xibleEditor.addNode(nodeUi);
       this.xibleEditor.loadedFlow.flow.addNode(editorNode);
       editorNode.setPosition(((event.pageX - actionsOffset.left - this.xibleEditor.left) / this.xibleEditor.zoom) - (editorNode.element.firstChild.offsetWidth / 2), ((event.pageY - actionsOffset.top - this.xibleEditor.top) / this.xibleEditor.zoom) - (editorNode.element.firstChild.offsetHeight / 2));
       this.xibleEditor.deselect();

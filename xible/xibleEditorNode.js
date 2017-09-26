@@ -25,33 +25,39 @@ class XibleEditorNode extends Node {
     const outputList = ios.appendChild(document.createElement('ul'));
     outputList.classList.add('output');
 
-    super(Object.assign({}, obj, {
-      element: el,
-      inputList,
-      outputList
-    }), ignoreData);
+    super(Object.assign({}, obj), ignoreData);
 
     headerEl.appendChild(document.createTextNode(this.name));
 
-    // add additional content
-    if(obj.editorContent) {
-      this.processEditorContent(obj.editorContent);
-    }
+    this.element = el;
+    this.inputList = inputList;
+    this.outputList = outputList;
 
-    this.statusTimeouts = {};
-    this.statusEl = null;
+    this.obj = obj;
+  }
 
-    // selection handlers
-    this.element.addEventListener('mousedown', (event) => {
-      if (this.editor) {
-        this.editor.toggleSelectionOnMouseEvent(event, this);
-      }
-    });
-    this.element.addEventListener('mouseup', (event) => {
-      if (this.editor) {
-        this.editor.toggleSelectionOnMouseEvent(event, this);
-      }
-    });
+  init() {
+    super.init();
+
+        // add additional content
+        if(this.obj.editorContent) {
+          this.processEditorContent(this.obj.editorContent);
+        }
+    
+        this.statusTimeouts = {};
+        this.statusEl = null;
+    
+        // selection handlers
+        this.element.addEventListener('mousedown', (event) => {
+          if (this.editor) {
+            this.editor.toggleSelectionOnMouseEvent(event, this);
+          }
+        });
+        this.element.addEventListener('mouseup', (event) => {
+          if (this.editor) {
+            this.editor.toggleSelectionOnMouseEvent(event, this);
+          }
+        });
   }
 
   initInputs(inputs) {
@@ -143,6 +149,7 @@ class XibleEditorNode extends Node {
 
   duplicate(ignoreData) {
     const duplicateXibleNode = new XibleEditorNode(this, ignoreData);
+    duplicateXibleNode.init();
     duplicateXibleNode.flow = null;
     duplicateXibleNode.editor = null;
 
@@ -701,6 +708,7 @@ const XibleEditorNodeIo = toExtend => class extends toExtend {
           this.node.editor.dummyXibleNode = new XibleEditorNode({
             name: 'dragdummy'
           });
+          this.node.editor.dummyXibleNode.init();
 
           // hide the dummy
           this.node.editor.dummyXibleNode.element.style.visibility = 'hidden';

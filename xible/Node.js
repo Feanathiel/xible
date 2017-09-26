@@ -12,8 +12,14 @@ const Utils = require('./utils');
     constructor(obj = {}, ignoreData = false) {
       super();
 
-      Object.assign(this, obj);
-      this.removeAllListeners();
+      this._id = obj._id;
+      this.id = obj.id;
+      this.name = obj.name;
+      this.type = obj.type;
+      this.description = obj.description;
+      this.inputs = obj.inputs;
+      this.outputs = obj.outputs;
+      this.editorContent = obj.editorContent;
 
       if (!this._id) {
         this._id = Utils.generateObjectId();
@@ -27,13 +33,19 @@ const Utils = require('./utils');
         this.data = {};
       }
 
+      this.nodeObj = obj;
+
+    }
+
+    init() {
+
       // add inputs
-      this.initInputs(obj.inputs);
-
-      // add outputs
-      this.initOutputs(obj.outputs);
-
-      this.setPosition(obj.left, obj.top);
+      this.initInputs(this.nodeObj.inputs);
+      
+            // add outputs
+            this.initOutputs(this.nodeObj.outputs);
+      
+            this.setPosition(this.nodeObj.left, this.nodeObj.top);
     }
 
     initInputs(inputs) {
@@ -55,7 +67,9 @@ const Utils = require('./utils');
     }
 
     static register(nodeName, nodeDef) {
-      NODES[nodeName] = new Node(nodeDef);
+      const n = new Node(nodeDef);
+      n.init();
+      NODES[nodeName] = n;
     }
 
     static getAll() {

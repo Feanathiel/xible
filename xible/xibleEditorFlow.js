@@ -54,7 +54,11 @@ class XibleEditorFlow extends EventEmitter {
 
   initNodes(nodes) {
     this.nodes = [];
-    nodes.forEach(node => this.addNode(new XibleEditorNode(node)));
+    nodes.forEach(node => {
+      const nodeUi = new XibleEditorNode(node);
+      nodeUi.init();
+      return this.addNode(nodeUi);
+    });
   }
 
   initConnectors(connectors) {

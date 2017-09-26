@@ -5,9 +5,10 @@
 
   class TypeDef {
     constructor(obj) {
-      if (obj) {
-        Object.assign(this, obj);
-      }
+      this.id = obj.id;
+      this.name = obj.name;
+      this.color = obj.color;
+      this.extends = obj.extends;
     }
 
     /**

@@ -16,7 +16,11 @@ const Connector = require('./Connector');
 
     initNodes(nodes) {
       this.nodes = [];
-      nodes.forEach(node => this.addNode(new Node(node)));
+      nodes.forEach(node => {
+        const n = new Node(node);
+        n.init();
+        return this.addNode(n);
+      });
     }
 
     initConnectors(connectors) {
