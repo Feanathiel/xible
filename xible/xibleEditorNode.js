@@ -817,7 +817,7 @@ const XibleEditorNodeIo = toExtend => class extends toExtend {
             newConn.destination.setGlobal(undefined);
           }
 
-          this.node.editor.loadedFlow.connectors.push(newConn);
+          this.node.editor.loadedFlow.flow.connectors.push(newConn);
           this.node.editor.addConnector(newConn);
         });
 

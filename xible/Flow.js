@@ -5,46 +5,13 @@ const EventEmitter = require('events').EventEmitter;
 const Node = require('./Node');
 const Connector = require('./Connector');
 
-  var FLOWS = [];
-  const http = {};
-
   class Flow extends EventEmitter {
-    constructor(obj) {
+    constructor() {
       super();
 
       this._id = null;
-      this.state = Flow.STATE_STOPPED;
-
-      if (obj) {
-        Object.assign(this, obj);
-      }
-
-      this.removeAllListeners();
-
-      // setup viewstate
-      this.viewState = {
-        left: obj && obj.viewState && obj.viewState.left ? obj.viewState.left : 0,
-        top: obj && obj.viewState && obj.viewState.top ? obj.viewState.top : 0,
-        zoom: obj && obj.viewState && obj.viewState.zoom ? obj.viewState.zoom : 1,
-        backgroundLeft: obj && obj.viewState &&
-          obj.viewState.backgroundLeft ? obj.viewState.backgroundLeft : 0,
-        backgroundTop: obj && obj.viewState &&
-          obj.viewState.backgroundTop ? obj.viewState.backgroundTop : 0
-      };
-
-      // setup nodes
-      if (obj && obj.nodes) {
-        this.initNodes(obj.nodes);
-      } else {
-        this.nodes = [];
-      }
-
-      // setup connectors
-      if (obj && obj.connectors) {
-        this.initConnectors(obj.connectors);
-      } else {
-        this.connectors = [];
-      }
+      this.nodes = [];
+      this.connectors = [];
     }
 
     initNodes(nodes) {
@@ -62,21 +29,7 @@ const Connector = require('./Connector');
       });
     }
 
-    static getById(id) {
-      return Promise.resolve(FLOWS[id]);
-    }
-
-    static getAll() {
-      return Promise.resolve(FLOWS);
-    }
-
-    static get STATE_STOPPED() {
-      return 0;
-    }
-
     delete() {
-      this.undirect();
-
       if (!this._id) {
         return Promise.resolve();
       }
@@ -88,8 +41,6 @@ const Connector = require('./Connector');
     }
 
     save(asNew) {
-      this.undirect();
-
       return new Promise((resolve, reject) => {
         resolve(this);
 // TODO generate id
@@ -98,62 +49,9 @@ const Connector = require('./Connector');
       });
     }
 
-    undirect() {
-      this.emit('undirect');
-    }
-
-    direct(related) {
-      // throttle
-      if (this._lastPostDirectFunction || this._lastDirectPromise) {
-        const hasFunction = !!this._lastPostDirectFunction;
-
-        this._lastPostDirectFunction = () => {
-          this.direct(related);
-          this._lastPostDirectFunction = null;
-        };
-
-        if (!hasFunction) {
-          this._lastDirectPromise.then(this._lastPostDirectFunction);
-        }
-
-        return Promise.resolve();
-      }
-
-      // ensure this flow is saved first
-      if (!this._id) {
-        return this.save()
-        .then(() => this.direct(related));
-      }
-
-      if (!related) {
-        return Promise.reject('related argument missing');
-      }
-
-      this._lastDirectPromise = new Promise((resolve, reject) => {
-        const nodes = related.nodes.map(node => ({
-          _id: node._id,
-          data: node.data
-        }));
-
-        const req = http.request('PATCH', `/api/flows/${encodeURIComponent(this._id)}/direct`);
-        req.toString(nodes)
-        .then(() => {
-          resolve(this);
-          this._lastDirectPromise = null;
-
-          this.emit('direct');
-        })
-        .catch((err) => {
-          reject(err);
-        });
-      });
-
-      return this._lastDirectPromise;
-    }
-
     // TODO: this functions isn't 'pretty'
     // and it should be toJSON().
-    toJson(nodes, connectors) {
+    toJson(nodes, connectors, viewState) {
       // the nodes
       const NODE_WHITE_LIST = ['_id', 'name', 'type', 'left', 'top', 'inputs', 'outputs', 'hidden', 'global'];
       let dataObject;
@@ -197,19 +95,6 @@ const Connector = require('./Connector');
       });
 
       return `{"_id":${JSON.stringify(this._id)},"nodes":${nodeJson},"connectors":${connectorJson},"viewState":${JSON.stringify(this.viewState)}}`;
-    }
-
-    /**
-    * Sets the viewstate of a flow
-    * @param {Object} viewState
-    * @param {Number} viewState.left
-    * @param {Number} viewState.top
-    * @param {Number} viewState.backgroundLeft
-    * @param {Number} viewState.backgroundTop
-    * @param {Number} viewState.zoom
-    */
-    setViewState(viewState) {
-      this.viewState = viewState;
     }
 
     getNodeById(id) {

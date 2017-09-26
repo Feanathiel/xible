@@ -1,10 +1,12 @@
 
+const Model = require('./Model');
 const TypeDef = require('./TypeDef');
 const Node = require('./Node');
 const XibleUi = require('./XibleUi');
 
 const apiFactory = (element, options) => {
-    const xibleUi = new XibleUi(element, options);
+    const model = new Model();
+    const xibleUi = new XibleUi(element, options, model);
     const xibleEditor = xibleUi.editor;
 
     class XibleApi {

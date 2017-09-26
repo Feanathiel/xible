@@ -7,8 +7,19 @@ const XibleEditorNodeSelector = require('./XibleEditorNodeSelector.js');
 const XibleEditorNode = require('./XibleEditorNode.js');
 
 class XibleEditor extends EventEmitter {
-  constructor() {
+  constructor(model) {
     super();
+
+    this.model = model;
+
+    this.model.on('flow-new', (flowModel) => {
+      const id = flowModel._id;
+      const flow = new XibleEditorFlow({
+        _id: id
+      }, flowModel);
+
+      this.flows[id] = flow;
+    });
 
     // stage element
     this.element = document.createElement('div');
@@ -214,7 +225,7 @@ class XibleEditor extends EventEmitter {
 
     // global inputs
     // FIXME: move this to the XibleFlow def and track all global outputs there
-    let globalTypes = [].concat(...this.loadedFlow.nodes.map(node => node.getGlobalOutputs()
+    let globalTypes = [].concat(...this.loadedFlow.flow.nodes.map(node => node.getGlobalOutputs()
     .map(output => output.type)));
 
     node.getInputs().forEach((input) => {
@@ -271,8 +282,8 @@ class XibleEditor extends EventEmitter {
   */
   deleteNode(node) {
     let index;
-    if ((index = this.loadedFlow.nodes.indexOf(node)) > -1) {
-      this.loadedFlow.nodes.splice(index, 1);
+    if ((index = this.loadedFlow.flow.nodes.indexOf(node)) > -1) {
+      this.loadedFlow.flow.nodes.splice(index, 1);
     }
 
     this.deselect(node);
@@ -297,8 +308,8 @@ class XibleEditor extends EventEmitter {
   */
   deleteConnector(connector) {
     let index;
-    if ((index = this.loadedFlow.connectors.indexOf(connector)) > -1) {
-      this.loadedFlow.connectors.splice(index, 1);
+    if ((index = this.loadedFlow.flow.connectors.indexOf(connector)) > -1) {
+      this.loadedFlow.flow.connectors.splice(index, 1);
     }
 
     this.deselect(connector);
@@ -317,13 +328,16 @@ class XibleEditor extends EventEmitter {
   * @param {XibleEditorFlow} flow The flow to open/view/edit.
   * @returns {Boolean} False if this flow is already loaded, true otherwise.
   */
-  viewFlow(flow) {
+  viewFlow(flowModel) {
+
+    const flow = this.flows[flowModel._id];
+
     // if (!(flow instanceof XibleEditorFlow)) {
     //   throw new Error('not a flow');
     // }
 
     // don't reload an already loaded flow
-    if (this.loadedFlow && this.loadedFlow._id === flow._id) {
+    if (this.loadedFlow && this.loadedFlow.flow._id === flow._id) {
       return false;
     }
 
@@ -341,12 +355,12 @@ class XibleEditor extends EventEmitter {
     this.element.setAttribute('data-flow', flow._id);
 
     // setup the nodes
-    flow.nodes.forEach((node) => {
+    flow.flow.nodes.forEach((node) => {
       this.addNode(node);
     });
 
     // setup the connectors
-    flow.connectors.forEach((connector) => {
+    flow.flow.connectors.forEach((connector) => {
       this.addConnector(connector);
     });
 
@@ -516,7 +530,7 @@ class XibleEditor extends EventEmitter {
 
         const previousSpliceConnector = this.nodeDragSpliceConnector;
 
-        const hasSpliceConnector = this.loadedFlow.connectors.some((connector) => {
+        const hasSpliceConnector = this.loadedFlow.flow.connectors.some((connector) => {
           // ignore hovering over connectors that are connected to the selected node
           if (selNodeConnectors.indexOf(connector) > -1) {
             return false;
@@ -642,8 +656,8 @@ class XibleEditor extends EventEmitter {
       this.deselect();
 
       // check what nodes fall within the selection
-      for (let i = 0; i < this.loadedFlow.nodes.length; i += 1) {
-        const node = this.loadedFlow.nodes[i];
+      for (let i = 0; i < this.loadedFlow.flow.nodes.length; i += 1) {
+        const node = this.loadedFlow.flow.nodes[i];
         const nodeBounding = node.element.getBoundingClientRect();
         const nodeLeftAvg = nodeBounding.left + nodeBounding.width / 2;
         const nodeTopAvg = nodeBounding.top + nodeBounding.height / 2;
@@ -737,7 +751,7 @@ class XibleEditor extends EventEmitter {
 
         // connect a duplicate of the connector to the first output of type of the selected node
         const dupConn = new XibleEditorConnector();
-        this.loadedFlow.connectors.push(dupConn);
+        this.loadedFlow.flow.connectors.push(dupConn);
 
         let selOutputs = selNode.getOutputsByType(this.nodeDragSpliceConnector.origin.type);
         let selOutput;
@@ -869,8 +883,8 @@ class XibleEditor extends EventEmitter {
   }
 
   selectAll() {
-    this.loadedFlow.nodes.forEach(node => this.select(node));
-    this.loadedFlow.connectors.forEach(connector => this.select(connector));
+    this.loadedFlow.flow.nodes.forEach(node => this.select(node));
+    this.loadedFlow.flow.connectors.forEach(connector => this.select(connector));
   }
 
   /**
@@ -891,7 +905,7 @@ class XibleEditor extends EventEmitter {
       // reposition if true
       dup.setPosition(dup.left + 20, dup.top + 20);
 
-      this.loadedFlow.addNode(dup);
+      this.loadedFlow.flow.addNode(dup);
       this.addNode(dup);
     });
 
@@ -902,13 +916,13 @@ class XibleEditor extends EventEmitter {
       }
 
       if (
-        this.loadedFlow.nodes.indexOf(dup.origin.node) === -1 ||
-    this.loadedFlow.nodes.indexOf(dup.destination.node) === -1
+        this.loadedFlow.flow.nodes.indexOf(dup.origin.node) === -1 ||
+    this.loadedFlow.flow.nodes.indexOf(dup.destination.node) === -1
       ) {
         return;
       }
 
-      this.loadedFlow.addConnector(dup);
+      this.loadedFlow.flow.addConnector(dup);
       this.addConnector(dup);
     });
 
@@ -1108,7 +1122,7 @@ class XibleEditor extends EventEmitter {
   }
 
   center() {
-    if (!this.loadedFlow || !this.loadedFlow.nodes.length) {
+    if (!this.loadedFlow || !this.loadedFlow.flow.nodes.length) {
       return;
     }
 
@@ -1117,8 +1131,8 @@ class XibleEditor extends EventEmitter {
     let minTop;
     let maxLeft;
     let maxTop;
-    for (let i = 0; i < this.loadedFlow.nodes.length; i += 1) {
-      const node = this.loadedFlow.nodes[i];
+    for (let i = 0; i < this.loadedFlow.flow.nodes.length; i += 1) {
+      const node = this.loadedFlow.flow.nodes[i];
       const nodeOffsetWidth = node.element.offsetWidth;
       const nodeOffsetHeight = node.element.offsetHeight;
 
@@ -1159,7 +1173,7 @@ class XibleEditor extends EventEmitter {
   }
 
   zoomFit() {
-    if (!this.loadedFlow || !this.loadedFlow.nodes.length) {
+    if (!this.loadedFlow || !this.loadedFlow.flow.nodes.length) {
       return;
     }
 
@@ -1168,8 +1182,8 @@ class XibleEditor extends EventEmitter {
     let minTop;
     let maxLeft;
     let maxTop;
-    for (let i = 0; i < this.loadedFlow.nodes.length; i += 1) {
-      const node = this.loadedFlow.nodes[i];
+    for (let i = 0; i < this.loadedFlow.flow.nodes.length; i += 1) {
+      const node = this.loadedFlow.flow.nodes[i];
       const nodeOffsetWidth = node.element.offsetWidth;
       const nodeOffsetHeight = node.element.offsetHeight;
 

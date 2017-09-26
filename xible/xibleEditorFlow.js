@@ -1,12 +1,26 @@
 'use strict';
 
+const EventEmitter = require('events').EventEmitter;
+
 const Flow = require('./Flow');
 const XibleEditorNode = require('./XibleEditorNode.js');
 const XibleEditorConnector = require('./XibleEditorConnector.js');
 
-class XibleEditorFlow extends Flow {
-  constructor(obj) {
+class XibleEditorFlow extends EventEmitter {
+  constructor(obj, flow) {
     super(obj);
+    this.flow = flow;
+
+    // setup viewstate
+    this.viewState = {
+      left: obj && obj.viewState && obj.viewState.left ? obj.viewState.left : 0,
+      top: obj && obj.viewState && obj.viewState.top ? obj.viewState.top : 0,
+      zoom: obj && obj.viewState && obj.viewState.zoom ? obj.viewState.zoom : 1,
+      backgroundLeft: obj && obj.viewState &&
+        obj.viewState.backgroundLeft ? obj.viewState.backgroundLeft : 0,
+      backgroundTop: obj && obj.viewState &&
+        obj.viewState.backgroundTop ? obj.viewState.backgroundTop : 0
+    };
 
     // set global appropriately when it's changed
     this.on('global', (output) => {
@@ -53,41 +67,18 @@ class XibleEditorFlow extends Flow {
     });
   }
 
-  undirect() {
-    super.undirect();
-
-    this.nodes.forEach((node) => {
-      node.element.classList.remove('nodirect');
-
-      if (node._directSetDataListener) {
-        node.removeListener('setdata', node._directSetDataListener);
-        delete node._directSetDataListener;
-      }
-    });
-
-    this.connectors.forEach((connector) => {
-      connector.element.classList.remove('nodirect');
-    });
-  }
-
-  direct(related) {
-    super.direct(related);
-
-    // TODO: set related styling here instead of in XibleEditor where it is now
-  }
-
   // TODO: simply have XibleEditor set viewState to loadedFlow directly?
   toJson(nodes, connectors) {
     // the viewstate
-    this.setViewState({
+    const viewState = {
       left: this.editor.left,
       top: this.editor.top,
       zoom: this.editor.zoom,
       backgroundLeft: this.editor.backgroundLeft,
       backgroundTop: this.editor.backgroundTop
-    });
+    };
 
-    return super.toJson(nodes, connectors);
+    return this.flow.toJson(nodes, connectors, viewState);
   }
 }
 

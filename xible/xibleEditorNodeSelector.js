@@ -163,7 +163,7 @@ class XibleEditorNodeSelector {
     li.addEventListener('mousedown', (event) => {
       const actionsOffset = this.xibleEditor.getOffsetPosition();
       const editorNode = this.xibleEditor.addNode(new XibleEditorNode(node));
-      this.xibleEditor.loadedFlow.addNode(editorNode);
+      this.xibleEditor.loadedFlow.flow.addNode(editorNode);
       editorNode.setPosition(((event.pageX - actionsOffset.left - this.xibleEditor.left) / this.xibleEditor.zoom) - (editorNode.element.firstChild.offsetWidth / 2), ((event.pageY - actionsOffset.top - this.xibleEditor.top) / this.xibleEditor.zoom) - (editorNode.element.firstChild.offsetHeight / 2));
       this.xibleEditor.deselect();
       this.xibleEditor.select(editorNode);

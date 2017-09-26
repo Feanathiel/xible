@@ -7,8 +7,9 @@ const TypeDef = require('./TypeDef');
 const Node = require('./Node');
 
 class Xible {
-    constructor(elementSelector, options) {
-        this.editor = new XibleEditor();
+    constructor(elementSelector, options, model) {
+        this.editor = new XibleEditor(model);
+        this.model = model;
         this.initViewAndMore(elementSelector, options);
     }
 
@@ -30,7 +31,7 @@ class Xible {
                 <button class="zoomResetButton" type="button" title="Reset zoom">&#xe01c;</button>
                 <button class="zoomInButton" type="button" title="Zoom in">&#xe035;</button>
                 </div>
-                <ul class="flowList loading"></ul>
+                <ul class="flowList"></ul>
             </div>
             `;
 
@@ -96,34 +97,7 @@ class Xible {
             });
           }
         
-          // disable some buttons when this flow is notRunnable
-          function setLoadedFlowState(flow) {
-            if (flow !== this.editor.loadedFlow) {
-              return;
-            }
-          }
-        
           function setFlowTabState(flow, li) {
-            li.classList.remove('initializing', 'initialized', 'direct');
-        
-            if (flow.directed) {
-              li.classList.add('direct');
-            }
-        
-            setLoadedFlowState.call(this, flow);
-        
-            /*
-            switch (flow.state) {
-              case this.xibleWrapper.Flow.STATE_INITIALIZING:
-                li.classList.add('initializing');
-                break;
-        
-              case this.xibleWrapper.Flow.STATE_INITIALIZED:
-                li.classList.add('initialized');
-                break;
-            }
-            */
-
             li.classList.add('initialized');
           }
         
@@ -145,8 +119,6 @@ class Xible {
               if (!this.editor.viewFlow(flow)) {
                 return;
               }
-        
-              setLoadedFlowState.call(this, flow);
             };
         
             // if in path, load it immediately
@@ -156,19 +128,7 @@ class Xible {
             }
         
             setFlowTabState.call(this, flow, li);
-        
-            flow.on('loadJson', () => {
-              setFlowTabState.call(this, flow, li);
-            });
-        
-            flow.on('initializing', () => {
-              setFlowTabState.call(this, flow, li);
-            });
-        
-            flow.on('initialized', () => {
-              setFlowTabState.call(this, flow, li);
-            });
-        
+
             return li;
           }
         
@@ -192,58 +152,41 @@ class Xible {
             .forEach((li) => {
               li.classList.remove('open');
             });
-        
-            const flow = new XibleEditorFlow({
-              _id: flowName
-            });
-            const flowTab = createFlowTab.call(this, flow);
-            flowTab.classList.add('open', 'loading');
-            flowTab.firstChild.click();
-        
-            flow.save(true).then(() => {
-                this.editor.flows[flow._id] = flow;
-        
-              flowTab.addEventListener('animationiteration', () => {
-                flowTab.classList.remove('loading');
-              }, {
-                once: true
-              });
-            }).catch((err) => {
-              // TODO: give feedback about what went wrong
-        
-              flowTab.classList.add('notRunnable');
-        
-              flowTab.addEventListener('animationiteration', () => {
-                flowListUl.removeChild(flowTab);
-              }, {
-                once: true
-              });
-            });
+
+            const flowModel = this.model.createFlow();
+            flowModel._id = flowName;
+
+            this.model.addFlow(flowModel);
           };
         
           // get all flows and add them
           function loadFlows(flows) {
-            flowListUl.classList.add('loading');
-        
             // ensure all flows tabs are gone
             Array.from(flowListUl.querySelectorAll('li:not(.add)'))
             .forEach((li) => {
               flowListUl.removeChild(li);
             });
+
         
-            var objFlows = this.editor.getFlows(flows);
-            Object.keys(objFlows).forEach((id) => {
-                createFlowTab.call(this, objFlows[id]);
-              });
-        
-              flowListUl.addEventListener('animationiteration', () => {
-                flowListUl.classList.remove('loading');
-              }, {
-                once: true
-              });
+            for (var key in flows) {
+              if (!flows.hasOwnProperty(key)) {
+                continue;
+              }
+
+              var flow = flows[key];
+
+              const flowModel = this.model.createFlow();
+              flowModel._id = flowName;
+              this.model.addFlow(flowModel);
+            }
           }
         
           /* end: this shouldnt be here */
+
+          this.model.on('flow-new', (flowModel) => {
+            const flowTab = createFlowTab.call(this, flowModel);
+            flowTab.firstChild.click();
+          });
 
         // buttons
         EL.querySelector('.saveButton').onclick = () => { this.saveFlow() };
@@ -272,10 +215,10 @@ class Xible {
             return;
         }
     
-        if (window.confirm(`Are you sure you wan't to permanently delete flow "${this.editor.loadedFlow._id}"?`)) {
+        if (window.confirm(`Are you sure you wan't to permanently delete flow "${this.editor.loadedFlow.flow._id}"?`)) {
             this.editor.loadedFlow.delete();
     
-            const flowTab = document.querySelector(`.flowList>li[data-flowid="${this.editor.loadedFlow._id}"]`);
+            const flowTab = document.querySelector(`.flowList>li[data-flowid="${this.editor.loadedFlow.flow._id}"]`);
 
             if (flowTab) {
                 flowTab.parentNode.removeChild(flowTab);
