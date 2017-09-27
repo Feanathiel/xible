@@ -1,7 +1,7 @@
 'use strict';
 
 const Node = require('./Node');
-const XibleEditorNode = require('./XibleEditorNode.js');
+const XibleEditorNode = require('./XibleEditorNode');
 
 class XibleEditorNodeSelector {
   /**

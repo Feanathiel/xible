@@ -2,9 +2,10 @@
 
 const EventEmitter = require('events').EventEmitter;
 
-const XibleEditorFlow = require('./XibleEditorFlow.js');
-const XibleEditorNodeSelector = require('./XibleEditorNodeSelector.js');
-const XibleEditorNode = require('./XibleEditorNode.js');
+const XibleEditorFlow = require('./XibleEditorFlow');
+const XibleEditorNodeSelector = require('./XibleEditorNodeSelector');
+const XibleEditorNode = require('./XibleEditorNode');
+const XibleEditorNodeIo = require('./XibleEditorNodeIo');
 
 class XibleEditor extends EventEmitter {
   constructor(model) {
@@ -1237,6 +1238,23 @@ class XibleEditor extends EventEmitter {
 
     // apply the transormation
     this.transform();
+  }
+
+  createDummyNode() {
+    this.dummyXibleNode = new XibleEditorNode({
+      name: 'dragdummy'
+    });
+    this.dummyXibleNode.init();
+
+    return this.dummyXibleNode;
+  }
+
+  createDummyIo(isOutput) {
+    this.dummyIo = new XibleEditorNodeIo('dummy', {
+      type: this.type
+    }, isOutput);
+
+    return this.dummyIo;
   }
 
   static get inputElementNameList() {

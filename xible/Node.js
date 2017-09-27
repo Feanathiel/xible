@@ -1,8 +1,7 @@
 'use strict';
 
 const EventEmitter = require('events').EventEmitter;
-const NodeInput = require('./Io').Input;
-const NodeOutput = require('./Io').Output;
+const NodeIo = require('./Io');
 const Utils = require('./utils');
 
 // This shouldn't be here
@@ -52,7 +51,7 @@ const Utils = require('./utils');
       this.inputs = {};
       if (inputs) {
         for (const name in inputs) {
-          this.addInput(new NodeInput(name, inputs[name]));
+          this.addInput(new NodeIo(name, inputs[name], false));
         }
       }
     }
@@ -61,7 +60,7 @@ const Utils = require('./utils');
       this.outputs = {};
       if (outputs) {
         for (const name in outputs) {
-          this.addOutput(new NodeOutput(name, outputs[name]));
+          this.addOutput(new NodeIo(name, outputs[name], true));
         }
       }
     }

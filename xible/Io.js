@@ -7,12 +7,25 @@ const Utils = require('./utils');
 
 
   class Io extends EventEmitter {
-    constructor(name, obj) {
+    constructor(name, obj, isOutput) {
       super();
 
       if (obj) {
         Object.assign(this, obj);
       }
+
+      if(obj) {
+        this._id = obj._id;
+        this.global = obj.global;
+        this.node = obj.node;
+        this.singleType = obj.singleType;
+        this.maxConnectors = obj.maxConnectors;
+        this.assignsInputType = obj.assignsInputType;
+        this.assignsOutputType = obj.assignsOutputType;
+        this.hidden = obj.hidden;
+      }
+
+      this.isOutput = isOutput;
 
       this.removeAllListeners();
 
@@ -75,7 +88,7 @@ const Utils = require('./utils');
 
       if (this.singleType) {
         this.on('attach', (conn) => {
-          const connLoc = conn[this instanceof Input ? 'origin' : 'destination'];
+          const connLoc = conn[!this.isOutput ? 'origin' : 'destination'];
           if (connLoc && connLoc.type) {
             this.setType(connLoc.type);
           }
@@ -133,7 +146,7 @@ const Utils = require('./utils');
     matchesTypeDef(connector) {
       return TypeDef.getAll()
       .then((typeDefs) => {
-        const outGoing = this instanceof Output;
+        const outGoing = this.isOutput;
         const originTypeDef = typeDefs[(outGoing ? this.type : connector.origin.type)];
         const destinationTypeDef = typeDefs[(outGoing ? connector.destination.type : this.type)];
 
@@ -154,7 +167,7 @@ const Utils = require('./utils');
       }
 
       // verify type
-      const end = this instanceof Input ? 'origin' : 'destination';
+      const end = !this.isOutput ? 'origin' : 'destination';
       if (this.type) {
         this.connectors
         .filter(conn => conn[end].type && conn[end].type !== this.type)
@@ -177,22 +190,20 @@ const Utils = require('./utils');
         this.connectors[0].delete();
       }
 
-      if (this.node && this instanceof Input) {
+      if (this.node && !this.isOutput) {
         delete this.node.inputs[this.name];
       }
 
-      if (this.node && this instanceof Output) {
+      if (this.node && this.isOutput) {
         delete this.node.outputs[this.name];
       }
-    }
-  }
-
-  class Input extends Io {
-    delete() {
-      super.delete();
 
       if (this.node) {
-        this.node.deleteInput(this);
+        if(this.isOutput) {
+          this.node.deleteOutput(this);
+        } else {
+          this.node.deleteInput(this);
+        }
       }
     }
 
@@ -202,47 +213,30 @@ const Utils = require('./utils');
       }
 
       const connector = connectors[0];
-      return this.matchesTypeDef(connector)
-      .then(matchesTypeDef =>
-        this.node !== connector.origin.node &&
-        (
-          (!this.type && connector.origin.type !== 'trigger') ||
-          (!connector.origin.type && this.type !== 'trigger') ||
-          connector.origin.type === this.type || matchesTypeDef
-        )
-      );
+
+      // TODO simplify
+      if(this.isOutput) {
+        return this.matchesTypeDef(connector)
+        .then(matchesTypeDef =>
+          this.node !== connector.destination.node &&
+          (
+            (!this.type && connector.destination.type !== 'trigger') ||
+            (!connector.destination.type && this.type !== 'trigger') ||
+            connector.destination.type === this.type || matchesTypeDef
+          )
+        );
+      } else {
+        return this.matchesTypeDef(connector)
+        .then(matchesTypeDef =>
+          this.node !== connector.origin.node &&
+          (
+            (!this.type && connector.origin.type !== 'trigger') ||
+            (!connector.origin.type && this.type !== 'trigger') ||
+            connector.origin.type === this.type || matchesTypeDef
+          )
+        );
+      }
     }
   }
 
-  class Output extends Io {
-    delete() {
-      super.delete();
-  
-      if (this.node) {
-        this.node.deleteOutput(this);
-      }
-    }
-  
-    matchesConnectors(connectors) {
-      if (!connectors) {
-        return false;
-      }
-  
-      const connector = connectors[0];
-      return this.matchesTypeDef(connector)
-      .then(matchesTypeDef =>
-        this.node !== connector.destination.node &&
-        (
-          (!this.type && connector.destination.type !== 'trigger') ||
-          (!connector.destination.type && this.type !== 'trigger') ||
-          connector.destination.type === this.type || matchesTypeDef
-        )
-      );
-    }
-  }
-
-module.exports = {
-  Io,
-  Input,
-  Output
-};
+module.exports = Io;
